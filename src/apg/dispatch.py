@@ -66,6 +66,13 @@ def coerce(value: str, target: type, param_name: str) -> Any:
 
 def parse_args(cmd: Command, tokens: list[str]) -> list[Any]:
     """Check arity and convert each argument. Raises ApgError with the usage line."""
+    # A trailing rest-parameter collapses everything still unconsumed into one
+    # argument, so `corpus show AS 2301` and `corpus show "AS 2301"` are the same
+    # call and neither needs the user to think about quoting.
+    if cmd.params and cmd.params[-1].rest and len(tokens) > len(cmd.params):
+        head = tokens[: len(cmd.params) - 1]
+        tokens = [*head, " ".join(tokens[len(cmd.params) - 1 :])]
+
     required = [p for p in cmd.params if p.required]
     if len(tokens) < len(required):
         missing = [p.name for p in cmd.params[len(tokens) :] if p.required]

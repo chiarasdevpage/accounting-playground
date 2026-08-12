@@ -16,7 +16,7 @@ prompt_toolkit.
 Adding a command, in full:
 
     @command("corpus show", "Print one auditing standard.",
-             params=(Param("as_number", "e.g. AS 2301"),))
+             params=(Param("as_number", "e.g. AS 2301", rest=True),))
     def corpus_show(session: Session, as_number: str) -> None:
         ...
 
@@ -42,6 +42,15 @@ class Param:
     help: str
     required: bool = True
     type: type = str
+    rest: bool = False
+    """Swallow the whole remainder of the line, spaces and all.
+
+    Some arguments are naturally written with spaces in them — an AS number
+    ("corpus show AS 2301"), a search phrase, and later a whole question typed at
+    `ask`. Without this the dispatcher would see two words and reject the second
+    as an unexpected extra argument, and the user would have to know to add
+    quotes. Only the last parameter may set it.
+    """
 
 
 @dataclass(frozen=True)
@@ -65,10 +74,11 @@ class Command:
         return head if rest else None
 
     def usage(self) -> str:
-        """A one-line usage string: `corpus show <as_number>`."""
+        """A one-line usage string: `corpus show <as_number...>`."""
         parts = [self.name]
         for param in self.params:
-            parts.append(f"<{param.name}>" if param.required else f"[{param.name}]")
+            name = f"{param.name}..." if param.rest else param.name
+            parts.append(f"<{name}>" if param.required else f"[{name}]")
         return " ".join(parts)
 
 
@@ -90,6 +100,15 @@ def command(
     def decorator(fn: Callable[..., object]) -> Callable[..., object]:
         if name in REGISTRY:
             raise ValueError(f"command {name!r} is already registered")
+        # A rest-parameter eats everything after it, so anything declared behind
+        # one could never be filled. Catch that at import rather than leaving a
+        # command that is silently impossible to call correctly.
+        for param in params[:-1]:
+            if param.rest:
+                raise ValueError(
+                    f"command {name!r}: {param.name!r} takes the rest of the line, "
+                    "so it must be the last parameter"
+                )
         REGISTRY[name] = Command(name=name, fn=fn, help=help, params=tuple(params))
         return fn
 

@@ -16,8 +16,8 @@ from typing import Annotated
 import typer
 from rich.markup import escape
 
+import apg.commands  # noqa: F401 - importing the package registers every command
 from apg import __version__
-from apg.commands import core as _core  # noqa: F401 - registers the commands
 from apg.dispatch import ExitSession, run
 from apg.registry import Command, all_commands
 from apg.session import Session

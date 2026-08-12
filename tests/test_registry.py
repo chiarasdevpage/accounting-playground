@@ -8,8 +8,23 @@ from apg import cli
 from apg.registry import REGISTRY, Command, Param, all_commands, resolve
 
 
-def test_phase_one_commands_are_registered():
-    assert set(REGISTRY) == {"help", "status", "exit"}
+def test_the_expected_commands_are_registered():
+    """Deliberately an exact set.
+
+    A command appearing here that nobody meant to ship — or one quietly
+    disappearing — is worth failing over, so this list is updated by hand at each
+    phase boundary rather than derived from the registry it is checking.
+    """
+    assert set(REGISTRY) == {
+        "help",
+        "status",
+        "exit",
+        "corpus download",
+        "corpus status",
+        "corpus list",
+        "corpus show",
+        "corpus search",
+    }
 
 
 def test_usage_marks_required_and_optional_differently():
@@ -21,6 +36,29 @@ def test_usage_marks_required_and_optional_differently():
     )
     assert cmd.usage() == "corpus show <as_number> [fmt]"
     assert cmd.group == "corpus"
+
+
+def test_usage_marks_a_rest_parameter_with_an_ellipsis():
+    """`<term...>` is the only signal that quoting a phrase is unnecessary."""
+    cmd = Command(
+        name="corpus search",
+        fn=lambda session, term: None,
+        help="x",
+        params=(Param("term", "h", rest=True),),
+    )
+    assert cmd.usage() == "corpus search <term...>"
+
+
+def test_a_rest_parameter_must_come_last():
+    """Anything declared behind one could never be filled, so refuse it outright."""
+    from apg.registry import command
+
+    with pytest.raises(ValueError, match="must be the last parameter"):
+        command(
+            "bogus",
+            "x",
+            params=(Param("a", "h", rest=True), Param("b", "h")),
+        )(lambda session, a, b: None)
 
 
 def test_single_word_command_has_no_group():

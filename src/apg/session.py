@@ -21,6 +21,9 @@ from rich.console import Console
 
 import apg.console  # noqa: F401 - imported for its UTF-8 console setup side effect
 
+_UNSET = "<unset>"
+"""Sentinel for "not looked up yet", distinct from a genuine None result."""
+
 
 @dataclass
 class Session:
@@ -37,6 +40,11 @@ class Session:
     active_specialist: str | None = None
     corpus_version: str | None = None
     dataset_counts: dict[str, int] = field(default_factory=dict)
+
+    # Cache for `detected_corpus_version`. `_UNSET` rather than None because
+    # "we looked and found nothing" and "we have not looked yet" are different
+    # states, and only the second one should trigger a disk read.
+    _detected_corpus: str | None = _UNSET
 
     @property
     def console(self) -> Console:
@@ -64,6 +72,24 @@ class Session:
             return False
         return sys.stdout.isatty()
 
+    def detected_corpus_version(self) -> str | None:
+        """The newest corpus on disk, looked up once and remembered.
+
+        Nothing loads the corpus at startup — that would put a disk read in front
+        of every `apg --help` — so the version is discovered lazily the first time
+        anything asks what is loaded. Cached because the status strip re-renders
+        on every keystroke, and guarded because a redraw must never be able to
+        crash the prompt.
+        """
+        if self._detected_corpus is _UNSET:
+            from apg import paths
+
+            try:
+                self._detected_corpus = paths.latest_corpus_version()
+            except Exception:  # noqa: BLE001 - a decoration must not break the shell
+                self._detected_corpus = None
+        return self._detected_corpus
+
     def state_summary(self) -> dict[str, object]:
         """The three facts the status strip and `status` both report.
 
@@ -73,6 +99,8 @@ class Session:
         total = sum(self.dataset_counts.values())
         return {
             "specialist": self.active_specialist,
-            "corpus_version": self.corpus_version,
+            # An explicitly set version wins, so tests and future phases can
+            # pin the session to one corpus without touching the disk.
+            "corpus_version": self.corpus_version or self.detected_corpus_version(),
             "dataset_pairs": total,
         }

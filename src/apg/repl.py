@@ -105,8 +105,11 @@ def print_help_plain(session: Session) -> None:
     """
     console = session.console
     console.print("accounting playground", style="bold")
+    # Width from the longest usage line, so a new command with a long signature
+    # cannot quietly knock the column out of alignment.
+    width = max((len(cmd.usage()) for cmd in all_commands()), default=0)
     for cmd in all_commands():
-        console.print(f"  {cmd.usage():<24} {cmd.help}")
+        console.print(f"  {cmd.usage():<{width}}  {cmd.help}")
     console.print(f"\n{FOOTER}", style="dim")
 
 

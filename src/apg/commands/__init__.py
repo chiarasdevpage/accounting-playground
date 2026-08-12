@@ -7,6 +7,9 @@ place that decides which command modules exist. Later phases add a line here —
 
 from __future__ import annotations
 
-from apg.commands import core  # noqa: F401 - imported for its registration side effect
+from apg.commands import (  # noqa: F401 - imported for their registration side effect
+    core,
+    corpus,
+)
 
-__all__ = ["core"]
+__all__ = ["core", "corpus"]

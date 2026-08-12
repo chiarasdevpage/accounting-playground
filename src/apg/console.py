@@ -13,7 +13,7 @@ from __future__ import annotations
 import contextlib
 import json
 import sys
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from typing import TYPE_CHECKING, Any
 
 from rich.table import Table
@@ -127,6 +127,48 @@ def emit(
         console.print(table)
     if footer:
         console.print(FOOTER, style="dim")
+
+
+@contextlib.contextmanager
+def progress(session: Session, total: int, description: str) -> Iterator[Any]:
+    """A progress bar for work that takes long enough to look frozen without one.
+
+    Yields an object with `advance()`. Under --json or --quiet it yields a silent
+    stand-in, so a command calls `advance()` unconditionally and never has to ask
+    whether anything is being displayed — the same reason `emit` and `say` exist.
+    """
+    if session.json_out or session.quiet or not sys.stdout.isatty():
+        yield _SilentProgress()
+        return
+
+    from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
+
+    with Progress(
+        TextColumn("{task.description}"),
+        BarColumn(),
+        TextColumn("{task.completed}/{task.total}"),
+        TimeRemainingColumn(),
+        console=session.console,
+        transient=True,
+    ) as bar:
+        task = bar.add_task(dash(description), total=total)
+        yield _RichProgress(bar, task)
+
+
+class _SilentProgress:
+    def advance(self, step: int = 1, description: str | None = None) -> None:
+        return
+
+
+class _RichProgress:
+    def __init__(self, bar: Any, task: Any) -> None:
+        self._bar = bar
+        self._task = task
+
+    def advance(self, step: int = 1, description: str | None = None) -> None:
+        if description is not None:
+            self._bar.update(self._task, description=dash(description))
+        self._bar.advance(self._task, step)
 
 
 def say(session: Session, message: str, style: str = "") -> None:

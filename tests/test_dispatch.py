@@ -42,6 +42,39 @@ def test_optional_argument_may_be_omitted():
     assert parse_args(cmd, []) == []
 
 
+def test_a_rest_parameter_swallows_the_whole_line():
+    """`corpus show AS 2301` is one argument, not a command with a surplus word."""
+    cmd = make(Param("as_number", "h", rest=True))
+    assert parse_args(cmd, ["AS", "2301"]) == ["AS 2301"]
+
+
+def test_a_rest_parameter_leaves_earlier_arguments_alone():
+    cmd = make(Param("model", "h"), Param("question", "h", rest=True))
+    assert parse_args(cmd, ["qwen", "what", "does", "AS", "2301", "require"]) == [
+        "qwen",
+        "what does AS 2301 require",
+    ]
+
+
+def test_a_rest_parameter_accepts_a_single_word():
+    cmd = make(Param("term", "h", rest=True))
+    assert parse_args(cmd, ["risk"]) == ["risk"]
+
+
+def test_a_rest_parameter_is_still_required_when_absent():
+    cmd = make(Param("term", "h", rest=True))
+    with pytest.raises(ApgError, match="term"):
+        parse_args(cmd, [])
+
+
+def test_quoting_a_rest_argument_changes_nothing():
+    """Both spellings must reach the command identically."""
+    cmd = make(Param("as_number", "h", rest=True))
+    assert parse_args(cmd, split('demo "AS 2301"')[1:]) == parse_args(
+        cmd, split("demo AS 2301")[1:]
+    )
+
+
 def test_surplus_arguments_are_refused():
     cmd = make(Param("a", "h"))
     with pytest.raises(ApgError, match="does not take"):

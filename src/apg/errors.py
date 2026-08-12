@@ -40,6 +40,13 @@ _KNOWN_HINTS = {
     "FileNotFoundError": "run `status` to see what this build actually has",
     "ModuleNotFoundError": "run `uv sync` to install the project's dependencies",
     "PermissionError": "another program may be holding that file open",
+    # The corpus download is the first thing here that talks to the network, and
+    # httpx's own messages ("ConnectError: [Errno 11001]") explain nothing to
+    # someone who just wants to know whether it was them or the website.
+    "ConnectError": "check your internet connection; pcaobus.org may also be down",
+    "ConnectTimeout": "the connection timed out - try `corpus download` again",
+    "ReadTimeout": "pcaobus.org stopped responding - try `corpus download` again",
+    "HTTPStatusError": "pcaobus.org refused that request; it may have moved the page",
 }
 
 
