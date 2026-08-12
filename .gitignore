@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Project data — corpus downloads, generated datasets, model artifacts.
+# These are large and/or reproducible; never commit them.
+data/
+models/
+*.gguf
+
+# Secrets
+.env
