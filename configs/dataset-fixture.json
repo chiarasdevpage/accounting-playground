@@ -1,0 +1,8 @@
+{
+  "corpus_version": "2026-08",
+  "backend": "fixture",
+  "profile": "pilot",
+  "seed": 42,
+  "pilot_units": 24,
+  "review_size": 40
+}

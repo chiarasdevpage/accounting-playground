@@ -11,9 +11,14 @@ thing inside a terminal app.
 
 ## Status
 
-**Phase 2 of 8 — the corpus.** The shell works and it now has something to read:
-all 51 current PCAOB auditing standards, downloaded, parsed, and pinned. There is
-no dataset and no model yet.
+**Phase 3 implementation — dataset generation.** The shell and 51-standard corpus
+are implemented. The dataset pipeline can now prepare source-aware units, preserve
+candidates, validate them, report coverage, and finalize an unsplit pool. Offline
+fixtures test the pipeline; no real generated dataset or trained model exists yet.
+Paid pilots require separate approval under [the budget rules](AGENTS.md).
+
+See [the Phase 3 operating guide](docs/phase-3.md) for commands, artifact schemas,
+recovery, validation limitations, and the boundary before a real pilot.
 
 ## Install
 
@@ -85,10 +90,10 @@ changed in between.
 ### How the corpus is pinned
 
 `manifest.json` records the download date, the source URL, a SHA-256 per page,
-and a `fingerprint` — a single checksum standing for the whole corpus. Two runs
-reporting the same fingerprint read exactly the same text; two runs reporting
-different fingerprints are not comparable, and any scores drawn from them are
-not either.
+and a `fingerprint` — a checksum identifying the raw source pages. It does not
+pin parsed text: parser changes can produce different inputs from identical HTML.
+Phase 3 additionally hashes the normalized JSON files and verifies those hashes
+on every dataset operation.
 
 The August 2026 snapshot: **51 standards, 1,494 numbered paragraphs**,
 fingerprint `sha256:7c9085f0…24b767bb`.

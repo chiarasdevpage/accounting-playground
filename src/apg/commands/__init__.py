@@ -10,6 +10,7 @@ from __future__ import annotations
 from apg.commands import (  # noqa: F401 - imported for their registration side effect
     core,
     corpus,
+    data,
 )
 
-__all__ = ["core", "corpus"]
+__all__ = ["core", "corpus", "data"]

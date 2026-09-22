@@ -46,15 +46,20 @@ actually pleasant to use. Explicitly NOT a production audit advisor.
 
 ## Phase 3 — Dataset generation
 
-- Claude (via API) reads each section and generates question→answer pairs
-  grounded in it, each with its AS citation(s).
-- Three flavors, tagged: **recall** ("what does AS 2301 require?"),
-  **application** (scenario → governing standard + requirement), and
-  **citation lookup**. Independent single-part questions only in v1 — no
-  multi-part dependencies.
-- Target: ~3,000–5,000 pairs. Each record stores question, reference answer,
-  citation(s), and flavor tag.
-- TUI commands: `data stats`, `data sample`.
+- The [authoritative planning brief](docs/phase-3-planning-brief.md) and
+  [implementation guide](docs/phase-3.md) expand this phase into source-aware
+  generation, deterministic and semantic validation, duplicate handling,
+  rejection auditing, coverage analysis, and stratified human review.
+- Output: one canonical accepted **unsplit** dataset. Every example depends on
+  one standard and carries exact source evidence and reproducibility metadata.
+- Independent single-part questions cover requirements, definitions, conditions,
+  exceptions, relationships, distinctions, synthesis, application, scenarios and
+  citation lookup. The 3,000–5,000 target is provisional; never pad for a quota.
+- Commands: `data prepare`, `data generate`, `data validate`, `data finalize`,
+  `data stats`, `data sample`, shared by the REPL and CLI.
+- Offline implementation precedes a separately approved, cost-bounded Claude API
+  pilot and a 40-example human review. Implementation approval authorizes no
+  spending. Phase 3 is not complete until a real validated pool exists.
 
 ## Phase 4 — Train/test split
 

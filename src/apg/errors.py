@@ -55,6 +55,15 @@ def report(session: Session, exc: BaseException) -> None:
     console = session.console
     hint = getattr(exc, "hint", None) or _KNOWN_HINTS.get(type(exc).__name__)
 
+    if session.json_out:
+        from apg.console import emit
+
+        emit(
+            session,
+            {"error": {"type": type(exc).__name__, "message": str(exc), "hint": hint}},
+        )
+        return
+
     # Tick apologises first, then gets out of the way. Whimsy never replaces the
     # error text.
     show_mascot(session, "dizzy", style="yellow")

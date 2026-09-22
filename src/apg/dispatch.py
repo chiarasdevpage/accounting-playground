@@ -122,7 +122,15 @@ def run(session: Session, tokens: list[str], mode: Mode) -> int:
     except KeyboardInterrupt:
         # Ctrl-C during a running command cancels that command only. In the REPL
         # you get the prompt back; one-shot uses the conventional 130.
-        session.console.print("cancelled", style="dim")
+        if session.json_out:
+            from apg.console import emit
+
+            emit(
+                session,
+                {"error": {"type": "KeyboardInterrupt", "message": "cancelled"}},
+            )
+        else:
+            session.console.print("cancelled", style="dim")
         return 0 if mode == "repl" else 130
     except Exception as exc:  # noqa: BLE001 - deliberate top-level handler
         if session.debug:

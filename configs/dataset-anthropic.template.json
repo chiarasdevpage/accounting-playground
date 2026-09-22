@@ -1,0 +1,26 @@
+{
+  "corpus_version": "2026-08",
+  "backend": "anthropic",
+  "profile": "pilot",
+  "seed": 42,
+  "pilot_units": 24,
+  "review_size": 40,
+  "pricing_source": "REPLACE_WITH_VERIFIED_OFFICIAL_PRICING_URL",
+  "pricing_verified_utc": "REPLACE_WITH_VERIFICATION_TIMESTAMP",
+  "generator": {
+    "model": "claude-haiku-4-5-20251001",
+    "max_output_tokens": 4096,
+    "context_tokens": 200000,
+    "temperature": 0.0,
+    "input_usd_per_million": "1",
+    "output_usd_per_million": "5"
+  },
+  "critic": {
+    "model": "claude-haiku-4-5-20251001",
+    "max_output_tokens": 4096,
+    "context_tokens": 200000,
+    "temperature": 0.0,
+    "input_usd_per_million": "1",
+    "output_usd_per_million": "5"
+  }
+}

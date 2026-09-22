@@ -24,6 +24,14 @@ def test_the_expected_commands_are_registered():
         "corpus list",
         "corpus show",
         "corpus search",
+        "data estimate",
+        "data verify",
+        "data prepare",
+        "data generate",
+        "data validate",
+        "data finalize",
+        "data stats",
+        "data sample",
     }
 
 

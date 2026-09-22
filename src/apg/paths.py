@@ -17,6 +17,20 @@ from pathlib import Path
 CORPUS_DIRNAME = "corpus"
 
 
+def dataset_dir() -> Path:
+    return data_dir() / "datasets"
+
+
+def dataset_run_dir(run_id: str) -> Path:
+    from apg.dataset.storage import safe_id
+
+    return dataset_dir() / safe_id(run_id)
+
+
+def budget_dir() -> Path:
+    return data_dir() / "dataset-budgets"
+
+
 def project_root() -> Path:
     """The repository root — the directory holding `pyproject.toml`.
 

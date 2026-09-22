@@ -40,6 +40,8 @@ class Session:
     active_specialist: str | None = None
     corpus_version: str | None = None
     dataset_counts: dict[str, int] = field(default_factory=dict)
+    dataset_run_id: str | None = None
+    dataset_budget_session: str | None = None
 
     # Cache for `detected_corpus_version`. `_UNSET` rather than None because
     # "we looked and found nothing" and "we have not looked yet" are different
